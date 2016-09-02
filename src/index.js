@@ -12,9 +12,8 @@ const ctx = canvas.getContext("2d");
 const scale = canvas.width / 500;
 
 const render = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height );
-  store.dispatch(tick());
   const state = store.getState();
+  ctx.clearRect(0, 0, canvas.width, canvas.height );
   snake(ctx, state.snake, scale);
   board(ctx, scale);
   apple(ctx, state.apples, scale);
@@ -22,7 +21,10 @@ const render = () => {
 
 render();
 
-setInterval(render, 250);
+setInterval(() => {
+  store.dispatch(tick());
+  render();
+}, 250);
 
 window.addEventListener('keydown', e => {
   if (e.keyCode === 38) store.dispatch(changeDirection('NORTH'));
