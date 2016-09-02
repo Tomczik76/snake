@@ -20,17 +20,15 @@ const render = () => {
   apple(ctx, state.apples, scale);
 }
 
-canvas.focus();
-
 render();
 
 setInterval(render, 250);
 
 window.addEventListener('keydown', e => {
-  if (e.keyCode == '38') store.dispatch(changeDirection('NORTH'));
-  else if (e.keyCode == '40') store.dispatch(changeDirection('SOUTH'));
-  else if (e.keyCode == '37') store.dispatch(changeDirection('WEST'));
-  else if (e.keyCode == '39') store.dispatch(changeDirection('EAST'));
+  if (e.keyCode === 38) store.dispatch(changeDirection('NORTH'));
+  else if (e.keyCode === 40) store.dispatch(changeDirection('SOUTH'));
+  else if (e.keyCode === 37) store.dispatch(changeDirection('WEST'));
+  else if (e.keyCode === 39) store.dispatch(changeDirection('EAST'));
 })
 
 
