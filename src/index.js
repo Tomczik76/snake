@@ -24,7 +24,7 @@ render();
 setInterval(() => {
   store.dispatch(tick());
   render();
-}, 250);
+}, 150);
 
 window.addEventListener('keydown', e => {
   if (e.keyCode === 38) store.dispatch(changeDirection('NORTH'));
