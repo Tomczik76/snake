@@ -5,8 +5,7 @@
   "main": "script.js",
   "dependencies": {
     "immutable": "^3.8.1",
-    "redux": "^3.5.2",
-    "rxjs": "^5.0.0-beta.11"
+    "redux": "^3.5.2"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",

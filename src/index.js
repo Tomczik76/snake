@@ -14,9 +14,9 @@ const scale = canvas.width / 500;
 const render = () => {
   const state = store.getState();
   ctx.clearRect(0, 0, canvas.width, canvas.height );
-  snake(ctx, state.snake, scale);
+  snake(ctx, state.get('snake'), scale);
   board(ctx, scale);
-  apple(ctx, state.apples, scale);
+  apple(ctx, state.get('apples'), scale);
 }
 
 render();
