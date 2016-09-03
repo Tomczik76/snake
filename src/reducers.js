@@ -1,67 +1,58 @@
-const getRandomInt = (min, max) => {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
+import { Map, List, Range, fromJS } from 'immutable';
 
-const generateApples = () => [...Array(10)].map(() => [getRandomInt(1, 49), getRandomInt(1, 49)]);
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
-const initialState = {
-  snake: [[0, 25], [-1, 25], [-2, 25], [-3, 25], [-4, 25], [-5, 25], [-6, 25], [-7, 25], [-8, 25], [-9, 25]],
-  snakeDirection: 'EAST',
+const generateApples = () => Range(1, 10).map(_ => List.of(getRandomInt(1, 49), getRandomInt(1, 49))).toList();
+
+const initialState = Map({
+  snake: Range(0, -9, 1).map(i => List.of(i, 25)).toList(),
+  direction: 'EAST',
   apples: generateApples(),
   grow: 0
-}
-const directions = {
-  'NORTH': [0, -1],
-  'SOUTH': [0, 1],
-  'EAST': [1, 0],
-  'WEST': [-1, 0]
+});
 
-}
-
-const opposites = {
-  'NORTH': 'SOUTH',
-  'SOUTH': 'NORTH',
-  'EAST': 'WEST',
-  'WEST': 'EAST'
+const getNewHead = ([x, y], direction) => {
+  switch (direction) {
+    case 'NORTH': return List.of(x, y - 1);
+    case 'SOUTH': return List.of(x, y + 1);
+    case 'EAST': return List.of(x + 1, y);
+    case 'WEST': return List.of(x - 1, y);
+  }
 }
 
+const getApples = (apples, head) => apples.every(a => a === head) ? generateApples() : apples.filter(a => !a.equals(head));
 
-const snakeDirection = (state, direction) => {
-  if (opposites[state] != direction) return direction;
-  return state;
-}
+const getOpposite = (direction) =>{
+  switch (direction) {
+    case 'NORTH': return 'SOUTH';
+    case 'SOUTH': return 'NORTH';
+    case 'EAST' : return 'WEST';
+    case 'WEST' : return 'EAST';
+  }
+};
+
+const getDirection = (state, direction) => (getOpposite(state) != direction) ? direction : state;
 
 const tick = (state) => {
-  const newHead = nextHead(state.snake[0], state.snakeDirection);
-  const {apples, eatenCount} = eatApples(state.apples, newHead)
-  const shouldGrow = state.grow > 0 || eatenCount > 0;
+  const newHead = getNewHead(state.get('snake').first(), state.get('direction'));
 
-  const body = (shouldGrow ? state.snake : state.snake.slice(0, state.snake.length - 1))
-    .map(([x, y]) => [x, y]);
+  const apples = getApples(state.get('apples'), newHead);
 
-  const grow = shouldGrow ? state.grow + eatenCount * 3 - 1 : 0;
+  const eatenCount = state.get('apples').size - apples.size;
 
-  return Object.assign({}, state, {apples, grow, snake: [newHead, ...body]});
-}
+  const shouldGrow = state.get('grow') > 0 || eatenCount > 0;
 
-const nextHead = ([x, y], direction) => {
-  const [xDirection, yDirection] = directions[direction];
-  return [x + xDirection, y + yDirection];
-}
+  const body = (shouldGrow ? state.get('snake') : state.get('snake').pop());
 
-const eatApples = (apples, [x, y]) => {
-  const newApples = apples.filter(([aX, aY]) => x !== aX || y !== aY).map(([x, y]) => [x, y]);
-  return {
-    apples: newApples.length > 0 ? newApples : generateApples(),
-    eatenCount: apples.length - newApples.length
-  }
+  const grow = shouldGrow ? state.get('grow') + eatenCount * 3 - 1 : 0;
+
+  return state.merge({apples, grow, snake: body.unshift(newHead)});
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case 'TICK': return Object.assign({}, state, tick(state));
-    case 'CHANGE_DIRECTION': return Object.assign({}, state, {
-      snakeDirection: snakeDirection(state.snakeDirection, action.direction)})
+    case 'TICK': return tick(state);
+    case 'CHANGE_DIRECTION': return state.set('direction', getDirection(state.get('direction'), action.direction))
     default: return state;
   }
 }
